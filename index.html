@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Meals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F4EF;
+    --bg2: #EFEAE2;
+    --surface: #FFFFFF;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.13);
+    --text: #1A1612;
+    --text2: #6B6158;
+    --text3: #9C9186;
+    --accent: #C17A3A;
+    --accent-bg: #FBF1E6;
+    --accent-text: #7A4A1A;
+    --teal: #2E7D6E;
+    --teal-bg: #E6F4F1;
+    --teal-text: #1A5048;
+    --purple: #6B4E8A;
+    --purple-bg: #F0EBF6;
+    --purple-text: #3D2556;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 2rem;
+  }
+
+  header {
+    padding: 1.5rem 1.25rem 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .app-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .app-sub {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 3px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .today-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 7px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+  }
+
+  .today-btn:active { opacity: 0.85; }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    padding: 1.25rem 1.25rem 0;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 9px 0;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text2);
+    cursor: pointer;
+    text-align: center;
+    transition: all .15s;
+  }
+
+  .tab.active {
+    background: var(--text);
+    color: #fff;
+    border-color: var(--text);
+    font-weight: 500;
+  }
+
+  .section { display: none; padding: 1rem 1.25rem 0; }
+  .section.active { display: block; }
+
+  /* DAY NAV */
+  .day-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.1rem;
+  }
+
+  .day-info {}
+  .day-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .day-date {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .nav-arrows { display: flex; gap: 6px; }
+  .arrow-btn {
+    width: 38px; height: 38px;
+    border: 1px solid var(--border2);
+    border-radius: 50%;
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text2);
+    transition: background .12s;
+  }
+  .arrow-btn:active { background: var(--bg2); }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+    margin-bottom: 10px;
+  }
+
+  .meal-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+
+  .meal-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.35;
+  }
+
+  .meal-detail {
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 3px;
+    line-height: 1.5;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 20px;
+    margin-top: 8px;
+  }
+
+  .badge-amber { background: var(--accent-bg); color: var(--accent-text); }
+  .badge-purple { background: var(--purple-bg); color: var(--purple-text); }
+  .badge-teal { background: var(--teal-bg); color: var(--teal-text); }
+
+  .divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+  .who-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+
+  .who-block {}
+  .who-tag {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .who-tag.adults { color: var(--teal); }
+  .who-tag.toddler { color: var(--purple); }
+
+  .who-text { font-size: 13px; color: var(--text); line-height: 1.4; }
+  .who-sub { font-size: 11px; color: var(--text3); margin-top: 2px; line-height: 1.4; }
+
+  /* TOMORROW */
+  .tomorrow-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+    margin-bottom: 10px;
+  }
+
+  .tomorrow-title {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 10px;
+  }
+
+  .tmr-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .tmr-row:last-child { border: none; }
+  .tmr-key { font-size: 12px; color: var(--text3); white-space: nowrap; }
+  .tmr-val { font-size: 13px; color: var(--text); text-align: right; }
+
+  /* GROCERY */
+  .grocery-week {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  .grocery-week::-webkit-scrollbar { display: none; }
+
+  .wk-btn {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    background: var(--surface);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .wk-btn.active {
+    background: var(--text);
+    color: #fff;
+    border-color: var(--text);
+  }
+
+  .store-section { margin-bottom: 1.25rem; }
+
+  .store-name {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+    padding-left: 2px;
+  }
+
+  .store-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .grocery-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 1.1rem;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    cursor: pointer;
+    transition: background .1s;
+  }
+  .grocery-item:last-child { border: none; }
+  .grocery-item:active { background: var(--bg); }
+  .grocery-item.checked { opacity: 0.45; }
+
+  .g-name { font-size: 14px; color: var(--text); }
+  .grocery-item.checked .g-name { text-decoration: line-through; }
+  .g-qty { font-size: 12px; color: var(--text3); white-space: nowrap; }
+
+  .check-icon {
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--border2);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    color: transparent;
+    transition: all .12s;
+  }
+  .grocery-item.checked .check-icon {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: #fff;
+  }
+
+  .clear-btn {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    margin-top: 4px;
+    margin-bottom: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="app-title">Daily Meals</div>
+    <div class="app-sub">Ayurvedic · Family of 3</div>
+  </div>
+  <button class="today-btn" onclick="goToday()">Today</button>
+</header>
+
+<div class="tabs" style="margin-top:1rem">
+  <button class="tab active" onclick="switchTab('meals')">Today's meals</button>
+  <button class="tab" onclick="switchTab('grocery')">Grocery list</button>
+</div>
+
+<div id="sec-meals" class="section active">
+  <div class="day-nav">
+    <div class="day-info">
+      <div class="day-num" id="day-num">Day 1</div>
+      <div class="day-date" id="day-date"></div>
+    </div>
+    <div class="nav-arrows">
+      <button class="arrow-btn" onclick="changeDay(-1)" aria-label="Previous day">&#8592;</button>
+      <button class="arrow-btn" onclick="changeDay(1)" aria-label="Next day">&#8594;</button>
+    </div>
+  </div>
+
+  <div class="card" id="card-wakeup"></div>
+  <div class="card" id="card-breakfast"></div>
+  <div class="card" id="card-lunch"></div>
+  <div class="card" id="card-dinner"></div>
+  <div class="tomorrow-card" id="card-tomorrow"></div>
+</div>
+
+<div id="sec-grocery" class="section">
+  <div class="grocery-week" id="week-tabs"></div>
+  <div id="grocery-content"></div>
+  <button class="clear-btn" onclick="clearChecked()">Clear checked items</button>
+</div>
+
+<script>
+const BREAKFAST = [
+  { name: "Avocado + low-fat paneer", detail: "Season paneer with cumin, lemon, pepper. Serve with avocado.", prep: null },
+  { name: "Tofu scramble", detail: "Tomato, bell pepper, turmeric, cumin. No onion.", prep: "chop veggies tonight" },
+  { name: "Cottage cheese pancakes", detail: "Batter is in the fridge — just pour and flip.", prep: "mix batter tonight" },
+  { name: "Overnight oats + protein", detail: "Add peanut butter, banana, chia seeds in the morning.", prep: "soak oats tonight" },
+];
+
+const JUICE = [
+  "Carrot + ginger + spinach",
+  "Beetroot + apple + lemon",
+  "Cucumber + celery + mint",
+  "Carrot + orange + turmeric",
+  "Spinach + apple + ginger",
+  "Tomato + carrot + basil",
+  "Beetroot + carrot + lemon",
+  "Green apple + cucumber + mint",
+];
+
+const SALAD = [
+  { top: "Cucumber + tomato + avocado", nuts: "Walnuts" },
+  { top: "Roasted chickpeas + red onion", nuts: "Almonds" },
+  { top: "Beetroot + feta", nuts: "Pecans" },
+  { top: "Cucumber + olives + sun-dried tomato", nuts: "Pine nuts" },
+  { top: "Roasted bell pepper + corn", nuts: "Cashews" },
+  { top: "Avocado + cherry tomato + basil", nuts: "Walnuts" },
+  { top: "Kale + apple + cranberries", nuts: "Almonds" },
+];
+
+const TODDLER_LUNCH = [
+  "Rice + moong dal + ghee",
+  "Khichdi + mashed carrot + ghee",
+  "Vegetable pulao + raita",
+  "Rice + toor dal + mashed peas",
+  "Paneer rice + soft peas",
+  "Rice + rajma (mashed) + yogurt",
+  "Khichdi + sweet potato mash + ghee",
+];
+
+const DINNER = [
+  "Palak paneer",
+  "Chana masala",
+  "Dal makhani",
+  "Mixed veg sabzi",
+  "Rajma curry",
+  "Baingan bharta",
+  "Methi aloo",
+  "Kadhi pakora",
+  "Aloo gobi",
+  "Palak chana",
+];
+
+const TODDLER_SNACK = [
+  "String cheese + blueberries",
+  "Mango-banana ice cream",
+  "Apple slices + almond butter",
+  "Watermelon + string cheese",
+  "Peaches + yogurt",
+  "Avocado popsicle",
+  "Grapes + cottage cheese",
+];
+
+const GROCERY = {
+  "Costco": [
+    { name: "Organic eggs", qty: "5 dozen" },
+    { name: "Greek yogurt (large tub)", qty: "2 tubs" },
+    { name: "Frozen mixed berries", qty: "3 bags" },
+    { name: "Plant protein powder", qty: "1 tub" },
+    { name: "Peanut butter", qty: "2-pack" },
+    { name: "Almond butter", qty: "1 jar" },
+    { name: "Walnuts", qty: "3 lb" },
+    { name: "Almonds", qty: "3 lb" },
+    { name: "Cashews", qty: "1 lb" },
+    { name: "Pecans", qty: "1 lb" },
+    { name: "Pine nuts", qty: "1 bag" },
+    { name: "Chia seeds", qty: "2 lb" },
+    { name: "Rolled oats", qty: "5 lb" },
+    { name: "Olive oil (extra virgin)", qty: "2 L" },
+    { name: "Avocados", qty: "10-pack × 2" },
+    { name: "Bananas", qty: "weekly" },
+    { name: "String cheese", qty: "2 packs" },
+    { name: "Whole milk (toddler)", qty: "weekly" },
+  ],
+  "Indian Store": [
+    { name: "Whole wheat flour (atta)", qty: "10 lb" },
+    { name: "Jowar (sorghum) flour", qty: "5 lb" },
+    { name: "Basmati rice", qty: "10 lb" },
+    { name: "Moong dal", qty: "4 lb" },
+    { name: "Toor dal", qty: "4 lb" },
+    { name: "Chana dal", qty: "3 lb" },
+    { name: "Rajma (kidney beans)", qty: "3 lb" },
+    { name: "Ghee", qty: "2 lb" },
+    { name: "Paneer (fresh)", qty: "1 lb bi-weekly" },
+    { name: "Cumin seeds (jeera)", qty: "1 lb" },
+    { name: "Coriander seeds", qty: "1 lb" },
+    { name: "Fennel seeds (saunf)", qty: "1 lb" },
+    { name: "Mustard seeds (rai)", qty: "1 bag" },
+    { name: "Asafoetida (hing)", qty: "1 small tin" },
+    { name: "Curry leaves", qty: "1 pack" },
+    { name: "Turmeric powder", qty: "monthly" },
+    { name: "Garam masala", qty: "monthly" },
+    { name: "Methi (fenugreek) leaves", qty: "1 pack" },
+  ],
+  "Aldi (weekly)": [
+    { name: "Mixed salad greens", qty: "1 bag" },
+    { name: "Spinach", qty: "1 bag" },
+    { name: "Kale", qty: "1 bunch" },
+    { name: "Tomatoes", qty: "weekly" },
+    { name: "Cucumbers", qty: "weekly" },
+    { name: "Bell peppers", qty: "weekly" },
+    { name: "Carrots (5 lb bag)", qty: "bi-weekly" },
+    { name: "Beetroot", qty: "bi-weekly" },
+    { name: "Potatoes", qty: "weekly" },
+    { name: "Sweet potatoes", qty: "weekly" },
+    { name: "Cauliflower", qty: "bi-weekly" },
+    { name: "Zucchini", qty: "weekly" },
+    { name: "Ginger root", qty: "weekly" },
+    { name: "Garlic bulbs", qty: "bi-weekly" },
+    { name: "Lemons", qty: "6–8 weekly" },
+    { name: "Apples", qty: "weekly" },
+    { name: "Peaches / seasonal fruit", qty: "weekly" },
+    { name: "Berries (strawberry, blueberry)", qty: "weekly" },
+    { name: "Mango", qty: "seasonal" },
+    { name: "Watermelon", qty: "seasonal" },
+    { name: "Cottage cheese", qty: "weekly" },
+    { name: "Baby yogurt (whole fat)", qty: "weekly" },
+    { name: "Feta cheese", qty: "bi-weekly" },
+  ],
+  "Whole Foods": [
+    { name: "Raw honey (jar)", qty: "monthly" },
+    { name: "Sun-dried tomatoes", qty: "monthly" },
+    { name: "Olives (jar)", qty: "monthly" },
+    { name: "Green tea bags", qty: "monthly" },
+    { name: "CCF herbal tea bags", qty: "monthly" },
+    { name: "Pumpkin seeds", qty: "monthly" },
+    { name: "Sunflower seeds", qty: "monthly" },
+    { name: "Dried cranberries", qty: "monthly" },
+    { name: "Sourdough bread", qty: "weekly" },
+    { name: "Celery", qty: "weekly" },
+  ],
+  "Amazon (monthly)": [
+    { name: "Moringa powder", qty: "1 bag" },
+    { name: "Ashwagandha powder", qty: "1 bag" },
+    { name: "Spirulina powder", qty: "1 bag" },
+    { name: "Silicone popsicle molds", qty: "once" },
+  ],
+};
+
+let currentDay = 1;
+let checkedItems = JSON.parse(localStorage.getItem('checkedItems') || '{}');
+let activeWeek = 1;
+
+function getData(dayNum) {
+  const d = dayNum - 1;
+  return {
+    b: BREAKFAST[d % 4],
+    juice: JUICE[d % 8],
+    salad: SALAD[d % 7],
+    tl: TODDLER_LUNCH[d % 7],
+    ts: TODDLER_SNACK[d % 7],
+    din: DINNER[d % 10],
+  };
+}
+
+function dayFromToday() {
+  const now = new Date();
+  const dom = now.getDate();
+  return dom <= 30 ? dom : 30;
+}
+
+function goToday() {
+  currentDay = dayFromToday();
+  renderMeals();
+}
+
+function changeDay(dir) {
+  currentDay = ((currentDay - 1 + dir + 30) % 30) + 1;
+  renderMeals();
+}
+
+function renderMeals() {
+  const d = getData(currentDay);
+  const nextDay = (currentDay % 30) + 1;
+  const nd = getData(nextDay);
+
+  document.getElementById('day-num').textContent = 'Day ' + currentDay;
+  const dateObj = new Date();
+  dateObj.setDate(currentDay);
+  document.getElementById('day-date').textContent = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  document.getElementById('card-wakeup').innerHTML =
+    `<div class="meal-label">Wake-up · 6:30 am</div>
+     <div class="who-grid">
+       <div class="who-block">
+         <div class="who-tag adults">Adults</div>
+         <div class="who-text">Warm lemon + honey water</div>
+       </div>
+       <div class="who-block">
+         <div class="who-tag toddler">Toddler</div>
+         <div class="who-text">Warm whole milk</div>
+       </div>
+     </div>`;
+
+  document.getElementById('card-breakfast').innerHTML =
+    `<div class="meal-label">Breakfast · 8:30 am</div>
+     <div class="meal-name">${d.b.name}</div>
+     <div class="meal-detail">${d.b.detail}</div>
+     <div class="meal-detail" style="margin-top:4px">Juice: ${d.juice}</div>
+     <div class="divider"></div>
+     <div class="who-tag toddler" style="margin-bottom:3px">Toddler</div>
+     <div style="font-size:13px;color:var(--text2)">Same food softened + milk</div>
+     ${d.b.prep ? `<span class="badge badge-amber">Tonight: ${d.b.prep}</span>` : ''}`;
+
+  document.getElementById('card-lunch').innerHTML =
+    `<div class="meal-label">Lunch · 12:30 pm</div>
+     <div class="who-grid">
+       <div class="who-block">
+         <div class="who-tag adults">Adults</div>
+         <div class="who-text">${d.salad.top}</div>
+         <div class="who-sub">+ 2 boiled eggs · ${d.salad.nuts}<br>olive oil + lemon · green tea</div>
+       </div>
+       <div class="who-block">
+         <div class="who-tag toddler">Toddler</div>
+         <div class="who-text">${d.tl}</div>
+         <div class="who-sub">Snack 3:30pm:<br>${d.ts}</div>
+       </div>
+     </div>`;
+
+  const nextPrep = nd.b.prep;
+  document.getElementById('card-dinner').innerHTML =
+    `<div class="meal-label">Dinner · 7:00 pm</div>
+     <div class="meal-name">Jowar-wheat chapati + ${d.din}</div>
+     <div class="meal-detail">Toddler gets same chapati (soft) + same curry (mild, no chili)</div>
+     <div class="meal-detail" style="margin-top:4px">CCF herbal tea after dinner</div>
+     <div class="divider"></div>
+     ${nextPrep
+       ? `<span class="badge badge-purple">Tonight: ${nextPrep} for tomorrow</span>`
+       : `<span class="badge badge-teal">No prep needed tonight</span>`}`;
+
+  document.getElementById('card-tomorrow').innerHTML =
+    `<div class="tomorrow-title">Tomorrow · Day ${nextDay}</div>
+     <div class="tmr-row"><span class="tmr-key">Breakfast</span><span class="tmr-val">${nd.b.name}</span></div>
+     <div class="tmr-row"><span class="tmr-key">Adults lunch</span><span class="tmr-val">${nd.salad.top}</span></div>
+     <div class="tmr-row"><span class="tmr-key">Toddler lunch</span><span class="tmr-val">${nd.tl}</span></div>
+     <div class="tmr-row"><span class="tmr-key">Dinner</span><span class="tmr-val">Chapati + ${nd.din}</span></div>`;
+}
+
+function renderGrocery() {
+  const stores = Object.keys(GROCERY);
+  const weekTabs = document.getElementById('week-tabs');
+  weekTabs.innerHTML = ['Week 1','Week 2','Week 3','Week 4'].map((w,i) =>
+    `<button class="wk-btn ${activeWeek===i+1?'active':''}" onclick="setWeek(${i+1})">${w}</button>`
+  ).join('');
+
+  let html = '';
+  stores.forEach(store => {
+    html += `<div class="store-section">
+      <div class="store-name">${store}</div>
+      <div class="store-card">`;
+    GROCERY[store].forEach((item, idx) => {
+      const key = `${store}-${idx}`;
+      const checked = checkedItems[key] ? 'checked' : '';
+      html += `<div class="grocery-item ${checked}" onclick="toggleItem('${store}',${idx})" data-key="${key}">
+        <div class="check-icon">${checkedItems[key] ? '✓' : ''}</div>
+        <div class="g-name">${item.name}</div>
+        <div class="g-qty">${item.qty}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  document.getElementById('grocery-content').innerHTML = html;
+}
+
+function setWeek(w) {
+  activeWeek = w;
+  renderGrocery();
+}
+
+function toggleItem(store, idx) {
+  const key = `${store}-${idx}`;
+  checkedItems[key] = !checkedItems[key];
+  localStorage.setItem('checkedItems', JSON.stringify(checkedItems));
+  renderGrocery();
+}
+
+function clearChecked() {
+  checkedItems = {};
+  localStorage.setItem('checkedItems', JSON.stringify(checkedItems));
+  renderGrocery();
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['meals','grocery'][i] === name);
+  });
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  if (name === 'grocery') renderGrocery();
+}
+
+currentDay = dayFromToday();
+renderMeals();
+</script>
+</body>
+</html>
